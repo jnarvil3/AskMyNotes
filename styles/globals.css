@@ -2,6 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 
+@import "tailwindcss";
+
 /* Optional: some extra polish */
 body {
   @apply bg-slate-900 text-white;
@@ -12,4 +14,9 @@ body {
 
 input[type="file"] {
   @apply cursor-pointer;
+}
+
+/* Correct usage in your CSS if you want a background of slate-900: */
+.my-bg {
+  @apply bg-slate-900;
 }
