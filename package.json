@@ -31,5 +31,9 @@
   "dependencies": {
     "next": "^15.3.0",
     "openai": "^4.93.0"
+  },
+  "devDependencies": {
+    "@types/react": "19.1.1",
+    "typescript": "5.8.3"
   }
 }
