@@ -1,0 +1,35 @@
+{
+  "name": "askmynotes",
+  "version": "1.0.0",
+  "description": "Upload your notes, journal, documentation, etc - and interrogate them :)",
+  "main": "pages/index.tsx",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "test": "echo \"No tests yet\" && exit 0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jnarvil3/AskMyNotes.git"
+  },
+  "keywords": [
+    "mini-RAG",
+    "openai",
+    "gpt",
+    "semantic-search",
+    "chatbot",
+    "nextjs",
+    "notes"
+  ],
+  "author": "Jasper Narvil",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/jnarvil3/AskMyNotes/issues"
+  },
+  "homepage": "https://github.com/jnarvil3/AskMyNotes#readme",
+  "dependencies": {
+    "next": "^15.3.0",
+    "openai": "^4.93.0"
+  }
+}
