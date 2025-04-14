@@ -1,66 +1,139 @@
-import { useState } from "react";
+// pages/index.tsx
+import { useState, useEffect, useRef } from "react";
+import ReactMarkdown from "react-markdown";
+
+
+type Message = {
+  role: "system" | "user" | "assistant";
+  content: string;
+};
 
 export default function Home() {
+  const systemMessage =
+    "You are a helpful assistant answering questions based on user-uploaded notes.";
   const [fileText, setFileText] = useState("");
-  const [question, setQuestion] = useState("");
-  const [answer, setAnswer] = useState("");
+  const [input, setInput] = useState("");
+  const [messages, setMessages] = useState<Message[]>([
+    { role: "system", content: systemMessage },
+  ]);
+  const [loading, setLoading] = useState(false);
+  const chatContainerRef = useRef<HTMLDivElement>(null);
 
+  // Handle file upload and send text for embedding
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      const text = await file.text();
-      setFileText(text);
-      await fetch("/api/embed", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text }),
-      });
-    }
-  };
+    if (!file) return;
+    const text = await file.text();
+    setFileText(text);
 
-  const handleAsk = async () => {
-    const res = await fetch("/api/chat", {
+    await fetch("/api/embed", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ question }),
+      body: JSON.stringify({ text }),
     });
-    const data = await res.json();
-    setAnswer(data.answer);
+
+    // Reset chat when a new file is uploaded
+    setMessages([{ role: "system", content: systemMessage }]);
   };
 
+  // Send the latest user message and the conversation history to the chat API
+  const handleSend = async () => {
+    if (input.trim() === "") return;
+    const newMessages: Message[] = [...messages, { role: "user", content: input }];
+    setMessages(newMessages);
+    setInput("");
+    setLoading(true);
+
+    try {
+      const res = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        // Sending the full conversation history
+        body: JSON.stringify({ messages: newMessages }),
+      });
+      const data = await res.json();
+      setMessages([...newMessages, { role: "assistant", content: data.answer || "No answer returned." }]);
+    } catch (error) {
+      console.error("Error fetching chat answer:", error);
+    }
+    setLoading(false);
+  };
+
+  // Clear chat and reset to the initial system message
+  const handleClearChat = () => {
+    setMessages([{ role: "system", content: systemMessage }]);
+  };
+
+  // Auto-scroll to the bottom when messages update
+  useEffect(() => {
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+    }
+  }, [messages]);
+
   return (
-    <div className="min-h-screen bg-gradient-to-tr from-slate-900 via-slate-800 to-slate-900 text-white flex items-center justify-center p-6">
-      <div className="w-full max-w-2xl bg-white/10 border border-white/20 backdrop-blur-md p-8 rounded-2xl shadow-xl space-y-6">
-        <h1 className="text-3xl font-bold text-white text-center">AskMyNotes</h1>
-        <p className="text-center text-slate-300">Upload your notes and ask them anything.</p>
+    <div className="container">
+      <h1>AskMyNotes Chat</h1>
 
-        <input
-          type="file"
-          accept=".txt"
-          onChange={handleFileUpload}
-          className="w-full text-sm text-slate-200 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-500 file:text-white hover:file:bg-blue-600"
-        />
+      <div className="upload-section mb-4">
+  <label
+    htmlFor="uploadFile"
+    className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 cursor-pointer"
+  >
+    Choose File
+  </label>
+  <input
+    id="uploadFile"
+    type="file"
+    accept=".txt"
+    onChange={handleFileUpload}
+    className="hidden"
+  />
+</div>
 
-        <input
-          className="w-full rounded-lg bg-slate-800 p-3 text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          value={question}
-          onChange={(e) => setQuestion(e.target.value)}
-          placeholder="Ask your notes something..."
-        />
-
+      <div className="chat-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <h2>Chat History</h2>
         <button
-          className="w-full bg-blue-600 hover:bg-blue-700 transition-all text-white font-semibold py-2 rounded-lg"
-          onClick={handleAsk}
-        >
-          Ask
-        </button>
+  onClick={handleClearChat}
+  className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded"
+>
+  Clear Chat
+</button>
 
-        {answer && (
-          <div className="prose prose-invert max-w-none bg-slate-900 p-6 rounded-lg border border-slate-700">
-            <h2>Answer:</h2>
-            <p>{answer}</p>
-          </div>
-        )}
+      </div>
+
+      <div className="chat-container" ref={chatContainerRef}>
+      {messages
+  .filter((m) => m.role !== "system")
+  .map((m, i) => {
+    if (m.role === "assistant") {
+      return (
+        <div key={i} className="message assistant prose prose-invert">
+          <strong>Assistant:</strong>
+          <ReactMarkdown>{m.content}</ReactMarkdown>
+        </div>
+      );
+    } else {
+      return (
+        <div key={i} className="message user">
+          <strong>You:</strong> {m.content}
+        </div>
+      );
+    }
+  })}
+
+      </div>
+
+      <div className="input-section">
+        <input
+          type="text"
+          placeholder="Type your message..."
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+        />
+        <button onClick={handleSend} disabled={loading}>
+          Send
+        </button>
       </div>
     </div>
   );

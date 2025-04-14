@@ -1,22 +1,84 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-@import "tailwindcss";
-
-/* Optional: some extra polish */
+/* styles/globals.css */
 body {
-  @apply bg-slate-900 text-white;
-  font-family: 'Inter', sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  background-color: #0f172a;  /* slate-900 */
+  color: white;
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-input[type="file"] {
-  @apply cursor-pointer;
+.container {
+  max-width: 700px;
+  margin: 2rem auto;
+  padding: 1rem;
 }
 
-/* Correct usage in your CSS if you want a background of slate-900: */
-.my-bg {
-  @apply bg-slate-900;
+h1 {
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.upload-section {
+  margin-bottom: 1rem;
+}
+
+.chat-header {
+  margin-bottom: 0.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.chat-container {
+  background: #1e293b;
+  padding: 1rem;
+  border-radius: 8px;
+  height: 400px;
+  overflow-y: auto;
+  margin-bottom: 1rem;
+}
+
+.message {
+  margin-bottom: 1rem;
+  padding: 0.75rem;
+  border-radius: 4px;
+}
+
+.message.user {
+  background: #334155;
+  text-align: right;
+}
+
+.message.assistant {
+  background: #0f172a;
+  text-align: left;
+}
+
+.input-section {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.input-section input[type="text"] {
+  flex: 1;
+  padding: 0.75rem;
+  border: 1px solid #475569;
+  border-radius: 4px;
+  background: #1e293b;
+  color: white;
+}
+
+.input-section button {
+  padding: 0.75rem 1rem;
+  border: none;
+  background: #3b82f6;
+  color: white;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.input-section button:disabled {
+  background: #64748b;
+  cursor: not-allowed;
 }
